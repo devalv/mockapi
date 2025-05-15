@@ -14,6 +14,6 @@ fake_users_db: dict[str, dict[str, Any]] = {
 }
 
 
-def get_user(db, username: str):
-    if username in db:
-        return db[username]
+def get_user(username: str):
+    if username in fake_users_db:
+        return fake_users_db[username]
