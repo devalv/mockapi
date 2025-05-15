@@ -1,3 +1,4 @@
-from .handlers import users_router_v2
+from api.v2.pools import v2_pools_router
+from api.v2.users import v2_users_router
 
-__all__ = ("users_router_v2",)
+__all__ = ("v2_users_router", "v2_pools_router")
