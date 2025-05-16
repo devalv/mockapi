@@ -21,7 +21,6 @@ class TokenData(BaseModel):
     def decode(cls, token: str) -> "TokenData":
         # TODO: SECRET_KEY точно должен быть частью настроек (https://github.com/devalv/yawm/blob/main/backend/core/schemas/security/oauth2.py)
         decoded_token: dict[str, Any] = jwt.decode(token, "super-secret", algorithms=[ALGORITHMS.HS256])
-        print(f"{decoded_token=}")  # noqa T201
         return cls(**decoded_token)
 
     def encode(self) -> str:
@@ -84,7 +83,6 @@ class ValidationErrorModel(BaseModel):
     detail: list[DetailContent]
 
 
-# TODO: ответа может быть 2 вида - для входа это 401 и 422, для остальных - 403 и 422
 DEFAULT_RESPONSES: dict[int | str, dict[str, Any]] = {
     status.HTTP_403_FORBIDDEN: {"model": ValidationErrorModel},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": ValidationErrorModel},

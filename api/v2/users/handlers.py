@@ -3,7 +3,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Response, Security, status
 
-from api.v2.users.schemas import LoginInputModel
+from api.v2.users.schemas import LoginInputModel, TokenResponseModel
 from core.errors import CREDENTIALS_ERR
 from core.schemas import DEFAULT_RESPONSES, Token, TokenData, User, ValidationErrorModel
 from core.utils import authenticate_user, get_current_active_user
@@ -13,14 +13,14 @@ v2_users_router = APIRouter(tags=["users"], prefix="/users")
 
 @v2_users_router.post(
     "/login/",
-    response_model=Token,
+    response_model=TokenResponseModel,
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_401_UNAUTHORIZED: {"model": ValidationErrorModel},
         status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": ValidationErrorModel},
     },
 )
-async def login_for_access_token(user_input: LoginInputModel) -> Token:
+async def login_for_access_token(user_input: LoginInputModel) -> TokenResponseModel:
     print(f"{user_input.username=}, {user_input.password=}, {user_input.ldap=}")  # noqa T201
     user: User | None = authenticate_user(user_input.username, user_input.password)
     if not user:
@@ -33,7 +33,7 @@ async def login_for_access_token(user_input: LoginInputModel) -> Token:
         domain=None,
         exp=(datetime.now(timezone.utc) + timedelta(hours=24)).timestamp(),
     )
-    return Token(access_token=_atd.encode(), refresh_token="")
+    return TokenResponseModel(data=Token(access_token=_atd.encode(), refresh_token=""))
 
 
 @v2_users_router.post(

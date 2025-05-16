@@ -28,3 +28,9 @@ TOKEN_TYPE_ERR: MockApiHTTPError = MockApiHTTPError(
     detail=[DetailContent(msg="Invalid token type.", err_code=ErrorCodes.UNKNOWN).model_dump()],
     headers={"WWW-Authenticate": "JWT"},
 )
+
+NOT_FOUND_ERR: MockApiHTTPError = MockApiHTTPError(
+    status_code=status.HTTP_404_NOT_FOUND,
+    detail=[DetailContent(msg="Not found.", err_code=ErrorCodes.UNKNOWN).model_dump()],
+    headers={"WWW-Authenticate": "JWT"},
+)

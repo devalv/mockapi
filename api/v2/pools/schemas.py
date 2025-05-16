@@ -11,3 +11,7 @@ class PoolShortModel(BaseModel):
     pool_type: PoolTypes
     os_type: OSTypes = OSTypes.OTHER
     connection_types: list[ConnectionTypes]
+
+
+class PoolShortResponseModel(BaseModel):
+    data: PoolShortModel

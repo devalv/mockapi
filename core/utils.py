@@ -23,8 +23,6 @@ def authenticate_user(username: str, password: str) -> User | None:
 
 async def validate_api_access_key(api_key_header: str = Security(api_access_key_header)):
     """Проверка jwt-access-токена пользователя."""
-
-    print(f"{api_key_header=}")  # noqa T201
     try:
         token_type, token_value = api_key_header.split(" ")
         if token_type != "JWT":
@@ -38,7 +36,6 @@ async def validate_api_access_key(api_key_header: str = Security(api_access_key_
 
 
 async def get_current_active_user(token: Annotated[TokenData, Depends(validate_api_access_key)]) -> User:
-    print(f"{token=}")  # noqa T201
     # https://github.com/devalv/yawm/blob/main/backend/core/services/security/auth.py
     # TODO: прочитать содержимое токена и извлечь пользователя из БД
     user: User | None = authenticate_user(token.username, "")
