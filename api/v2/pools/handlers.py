@@ -1,12 +1,14 @@
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Security, status
+from fastapi_pagination import paginate
 from pydantic import UUID4
 
 from api.v2.pools.schemas import PoolShortModel, PoolShortResponseModel
 from core.db import get_user_pools
 from core.errors import NOT_FOUND_ERR
 from core.schemas import DEFAULT_RESPONSES, User
+from core.unifiers import UnifiedPage
 from core.utils import get_current_active_user
 
 # TODO: единый формат ответа с ошибкой и без - data, errors - data всегда list?
@@ -16,16 +18,16 @@ v2_pools_router = APIRouter(tags=["pools"], prefix="/pools")
 
 
 @v2_pools_router.get(
-    "/", status_code=status.HTTP_200_OK, responses=DEFAULT_RESPONSES, response_model=list[PoolShortModel]
+    "/", status_code=status.HTTP_200_OK, responses=DEFAULT_RESPONSES, response_model=UnifiedPage[PoolShortModel]
 )
-async def pools(user: Annotated[User, Security(get_current_active_user)]):
+async def pools(user: Annotated[User, Security(get_current_active_user)]) -> UnifiedPage[PoolShortModel]:
     """Список пулов назначенных пользователю."""
     # TODO: добавить пагинатор
     db_pools: list[dict[str, Any]] = get_user_pools(str(user.id))
     model_pools: list[PoolShortModel] = list()
     for db_pool in db_pools:
         model_pools.append(PoolShortModel(**db_pool))
-    return model_pools
+    return paginate(model_pools)
 
 
 @v2_pools_router.get(
@@ -34,7 +36,7 @@ async def pools(user: Annotated[User, Security(get_current_active_user)]):
     responses=DEFAULT_RESPONSES,
     response_model=PoolShortResponseModel,
 )
-async def pool(user: Annotated[User, Security(get_current_active_user)], id: UUID4):
+async def pool(user: Annotated[User, Security(get_current_active_user)], id: UUID4) -> PoolShortResponseModel:
     """Информация о пуле."""
     db_pools: list[dict[str, Any]] = get_user_pools(str(user.id))
     user_pool: PoolShortModel | None = None
