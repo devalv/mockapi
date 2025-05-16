@@ -9,8 +9,8 @@ from api.v2 import v2_pools_router, v2_users_router
 from core.errors import ErrorCodes
 
 mock_app = FastAPI()
-mock_app.include_router(v2_pools_router, prefix="/api/v2")
-mock_app.include_router(v2_users_router, prefix="/api/v2")
+mock_app.include_router(v2_pools_router, prefix="/api/v2", tags=["v2"])
+mock_app.include_router(v2_users_router, prefix="/api/v2", tags=["v2"])
 
 
 @mock_app.exception_handler(RequestValidationError)

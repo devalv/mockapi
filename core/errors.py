@@ -14,11 +14,17 @@ class MockApiHTTPError(HTTPException):
 CREDENTIALS_ERR: MockApiHTTPError = MockApiHTTPError(
     status_code=status.HTTP_401_UNAUTHORIZED,
     detail=[DetailContent(msg="Invalid Credentials.", err_code=ErrorCodes.UNKNOWN).model_dump()],
-    headers={"WWW-Authenticate": "Bearer"},
+    headers={"WWW-Authenticate": "JWT"},
 )
 
 FORBIDEN_ERR: MockApiHTTPError = MockApiHTTPError(
     status_code=status.HTTP_403_FORBIDDEN,
     detail=[DetailContent(msg="Permission denied.", err_code=ErrorCodes.UNKNOWN).model_dump()],
-    headers={"WWW-Authenticate": "Bearer"},
+    headers={"WWW-Authenticate": "JWT"},
+)
+
+TOKEN_TYPE_ERR: MockApiHTTPError = MockApiHTTPError(
+    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+    detail=[DetailContent(msg="Invalid token type.", err_code=ErrorCodes.UNKNOWN).model_dump()],
+    headers={"WWW-Authenticate": "JWT"},
 )

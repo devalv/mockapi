@@ -3,12 +3,12 @@ from typing import Annotated
 
 from fastapi import APIRouter, Response, Security, status
 
-from api.v2.users.schemas import LoginInputModel, Token, TokenData
+from api.v2.users.schemas import LoginInputModel
 from core.errors import CREDENTIALS_ERR
-from core.schemas import User, ValidationErrorModel, default_responses
+from core.schemas import DEFAULT_RESPONSES, Token, TokenData, User, ValidationErrorModel
 from core.utils import authenticate_user, get_current_active_user
 
-v2_users_router = APIRouter(tags=["users", "v2"], prefix="/users")
+v2_users_router = APIRouter(tags=["users"], prefix="/users")
 
 
 @v2_users_router.post(
@@ -26,20 +26,18 @@ async def login_for_access_token(user_input: LoginInputModel) -> Token:
     if not user:
         raise CREDENTIALS_ERR
 
-    print(f"{user=}")  # noqa T201
     _atd = TokenData(
         username=user.username,
         sub=user.id,
         roles=user.roles,
         domain=None,
-        exp=(datetime.now(timezone.utc) + timedelta(minutes=15)).timestamp(),
+        exp=(datetime.now(timezone.utc) + timedelta(hours=24)).timestamp(),
     )
-    print(f"{_atd=}")  # noqa T201
     return Token(access_token=_atd.encode(), refresh_token="")
 
 
 @v2_users_router.post(
-    "/logout/", status_code=status.HTTP_205_RESET_CONTENT, responses=default_responses, response_class=Response
+    "/logout/", status_code=status.HTTP_205_RESET_CONTENT, responses=DEFAULT_RESPONSES, response_class=Response
 )
 async def logout(user: Annotated[User, Security(get_current_active_user)]):
     print(f"{user=}")  # noqa T201
