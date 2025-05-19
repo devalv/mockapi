@@ -1,0 +1,36 @@
+version: 1
+formatters:
+  simple:
+    format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+handlers:
+  console:
+    class: logging.StreamHandler
+    formatter: simple
+    stream: ext://sys.stdout
+    level: DEBUG
+loggers:
+  httpx:
+    level: INFO
+    handlers: [console]
+    propagate: no
+  httpcore:
+    level: INFO
+    handlers: [console]
+    propagate: no
+  aiosqlite:
+    level: INFO
+    handlers: [console]
+    propagate: no
+  uvicorn:
+    level: INFO
+    handlers: [console]
+  uvicorn.error:
+    level: INFO
+    handlers: [console]
+  uvicorn.access:
+    level: INFO
+    propagate: False
+    handlers: [console]
+root:
+  level: DEBUG
+  handlers: [console]
