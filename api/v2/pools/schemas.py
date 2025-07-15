@@ -7,7 +7,7 @@ class PoolShortModel(BaseModel):
     id: UUID4
     name: str
     status: EnitityStatuses
-    is_favorite: bool  # TODO: убрать из ответа?
+    is_favorite: bool
     pool_type: PoolTypes
     os_type: OSTypes = OSTypes.OTHER
     connection_types: list[ConnectionTypes]
