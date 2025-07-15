@@ -8,10 +8,12 @@ from fastapi_pagination import add_pagination
 
 from api.v2 import v2_pools_router, v2_users_router
 from core.errors import ErrorCodes
+from service.handlers import service_router
 
 mock_app = FastAPI()
 mock_app.include_router(v2_pools_router, prefix="/api/v2", tags=["v2"])
 mock_app.include_router(v2_users_router, prefix="/api/v2", tags=["v2"])
+mock_app.include_router(service_router, prefix="", tags=["service", "mock"])
 add_pagination(mock_app)
 
 
