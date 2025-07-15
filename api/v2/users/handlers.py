@@ -21,7 +21,6 @@ v2_users_router = APIRouter(tags=["users"], prefix="/users")
     },
 )
 async def login_for_access_token(user_input: LoginInputModel) -> TokenResponseModel:
-    print(f"{user_input.username=}, {user_input.password=}, {user_input.ldap=}")  # noqa T201
     user: User | None = authenticate_user(user_input.username, user_input.password)
     if not user:
         raise CREDENTIALS_ERR
