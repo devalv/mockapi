@@ -86,6 +86,11 @@ fake_users_pools_db: dict[str, set[str]] = {
     ]),
 }
 
+fake_users_machines_db: dict[str, set[str]] = {}
+
+
+fake_machines_db: dict[str, dict[str, Any]] = {}
+
 
 def get_user(username: str):
     if username in fake_users_db:
@@ -99,4 +104,14 @@ def get_user_pools(user_id: str) -> list[dict[str, Any]]:
         for pool in pool_ids:
             pools.append(fake_pools_db[pool])
         return pools
+    return []
+
+
+def get_user_machines(user_id: str) -> list[dict[str, Any]]:
+    if user_id in fake_users_machines_db:
+        machine_ids = fake_users_machines_db[user_id]
+        machines: list[dict[str, Any]] = []
+        for machine in machine_ids:
+            machines.append(fake_machines_db[machine])
+        return machines
     return []
