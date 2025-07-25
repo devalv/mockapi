@@ -19,11 +19,6 @@ from service.schemas import CreatePoolRequestModel, CreatePoolResponseModel, Ext
 service_router = APIRouter(tags=["service", "mock"], prefix="/service")
 
 
-@service_router.get("/health")
-async def health():
-    return {"status": "ok"}
-
-
 @service_router.get("/all-pools", status_code=status.HTTP_200_OK, response_model=list[PoolShortModel])
 async def get_all_pools() -> list[PoolShortModel]:
     return [PoolShortModel(**pool) for pool in fake_pools_db.values()]

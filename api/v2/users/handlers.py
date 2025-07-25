@@ -46,4 +46,5 @@ async def logout(user: Annotated[User, Security(get_current_active_user)]):
 @v2_users_router.get("/settings/")
 async def settings():
     # TODO: валидация токена и определение пользователя
+    # TODO: описание структуры пользовательских ответов
     raise NotImplementedError
