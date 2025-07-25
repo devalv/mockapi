@@ -1,6 +1,6 @@
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Security, status
+from fastapi import APIRouter, Security, WebSocket, status
 from fastapi_pagination import paginate
 from pydantic import UUID4
 
@@ -35,8 +35,8 @@ async def pools(
     return paginate(model_pools)
 
 
-@v2_pools_router.put(
-    "/{id}/get-machine/",
+@v2_pools_router.post(
+    "/{id}/connect/",
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_403_FORBIDDEN: {"model": ValidationErrorModel},
@@ -45,7 +45,7 @@ async def pools(
     },
     response_model=PoolGetMachineResponseModel,
 )
-async def get_machine(
+async def pool_connect(
     user: Annotated[User, Security(get_current_active_user)], id: UUID4, request_model: PoolGetMachineRequestModel
 ) -> PoolShortResponseModel:
     """Получение машины из пула.
@@ -64,3 +64,11 @@ async def get_machine(
     if not user_pool:
         raise NOT_FOUND_ERR
     return PoolShortResponseModel(data=user_pool)
+
+
+@v2_pools_router.websocket("/ws")
+async def pools_ws(websocket: WebSocket) -> None:
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f"Message text was: {data}")
