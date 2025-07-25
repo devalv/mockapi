@@ -1,18 +1,20 @@
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Security, status
+from fastapi import APIRouter, Security, WebSocket, status
 from fastapi_pagination import paginate
 from pydantic import UUID4
 
-from api.v2.pools.schemas import PoolShortModel, PoolShortResponseModel
+from api.v2.pools.schemas import (
+    PoolGetMachineRequestModel,
+    PoolGetMachineResponseModel,
+    PoolShortModel,
+    PoolShortResponseModel,
+)
 from core.db import get_user_pools
 from core.errors import NOT_FOUND_ERR
-from core.schemas import DEFAULT_RESPONSES, User
+from core.schemas import DEFAULT_RESPONSES, User, ValidationErrorModel
 from core.unifiers import UnifiedPage
 from core.utils import get_current_active_user
-
-# TODO: единый формат ответа с ошибкой и без - data, errors - data всегда list?
-# TODO: валидация заголовка с access_token пользователя
 
 v2_pools_router = APIRouter(tags=["pools"], prefix="/pools")
 
@@ -20,24 +22,39 @@ v2_pools_router = APIRouter(tags=["pools"], prefix="/pools")
 @v2_pools_router.get(
     "/", status_code=status.HTTP_200_OK, responses=DEFAULT_RESPONSES, response_model=UnifiedPage[PoolShortModel]
 )
-async def pools(user: Annotated[User, Security(get_current_active_user)]) -> UnifiedPage[PoolShortModel]:
+async def pools(
+    user: Annotated[User, Security(get_current_active_user)], is_favorite: bool = False
+) -> UnifiedPage[PoolShortModel]:
     """Список пулов назначенных пользователю."""
-    # TODO: добавить пагинатор
     db_pools: list[dict[str, Any]] = get_user_pools(str(user.id))
     model_pools: list[PoolShortModel] = list()
     for db_pool in db_pools:
+        if is_favorite and not db_pool["is_favorite"]:
+            continue
         model_pools.append(PoolShortModel(**db_pool))
     return paginate(model_pools)
 
 
-@v2_pools_router.get(
-    "/{id}/",
+@v2_pools_router.post(
+    "/{id}/connect/",
     status_code=status.HTTP_200_OK,
-    responses=DEFAULT_RESPONSES,
-    response_model=PoolShortResponseModel,
+    responses={
+        status.HTTP_403_FORBIDDEN: {"model": ValidationErrorModel},
+        status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": ValidationErrorModel},
+        status.HTTP_201_CREATED: {"model": PoolGetMachineResponseModel},
+    },
+    response_model=PoolGetMachineResponseModel,
 )
-async def pool(user: Annotated[User, Security(get_current_active_user)], id: UUID4) -> PoolShortResponseModel:
-    """Информация о пуле."""
+async def pool_connect(
+    user: Annotated[User, Security(get_current_active_user)], id: UUID4, request_model: PoolGetMachineRequestModel
+) -> PoolShortResponseModel:
+    """Получение машины из пула.
+
+    Если у пользователя есть права доступа к пулу, но, отсутствует машина - выполняется попытка создания новой и закрепление её за пользователем.
+    """
+    # TODO: отдельная ручка для каждого вида пулов?
+    # TODO: отдельная ручка для получения машины (когда она уже есть?) Если машины нет - отвечаем, что машины нет - надо попробовать получить.
+    # TODO: wip
     db_pools: list[dict[str, Any]] = get_user_pools(str(user.id))
     user_pool: PoolShortModel | None = None
     for db_pool in db_pools:
@@ -47,3 +64,11 @@ async def pool(user: Annotated[User, Security(get_current_active_user)], id: UUI
     if not user_pool:
         raise NOT_FOUND_ERR
     return PoolShortResponseModel(data=user_pool)
+
+
+@v2_pools_router.websocket("/ws")
+async def pools_ws(websocket: WebSocket) -> None:
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f"Message text was: {data}")
