@@ -3,7 +3,16 @@ from typing import Annotated
 
 from fastapi import APIRouter, Response, Security, status
 
-from api.v2.users.schemas import LoginInputModel, TokenResponseModel
+from api.v2.users.schemas import (
+    GlintV1SettingsModel,
+    LoginInputModel,
+    MainSettingsModel,
+    SecuritySettingsModel,
+    ServiceSettingsModel,
+    TokenResponseModel,
+    UserClientSettingsDataModel,
+    UserClientSettingsModel,
+)
 from core.errors import CREDENTIALS_ERR
 from core.schemas import DEFAULT_RESPONSES, Token, TokenData, User, ValidationErrorModel
 from core.utils import authenticate_user, get_current_active_user
@@ -43,8 +52,13 @@ async def logout(user: Annotated[User, Security(get_current_active_user)]):
     return None
 
 
-@v2_users_router.get("/settings/")
-async def settings():
-    # TODO: валидация токена и определение пользователя
-    # TODO: описание структуры пользовательских ответов
-    raise NotImplementedError
+@v2_users_router.get("/settings/", responses=DEFAULT_RESPONSES, response_model=UserClientSettingsModel)
+async def settings(user: Annotated[User, Security(get_current_active_user)]):
+    return UserClientSettingsModel(
+        data=UserClientSettingsDataModel(
+            service=ServiceSettingsModel(),
+            security=SecuritySettingsModel(),
+            main=MainSettingsModel(),
+            glint_v1=GlintV1SettingsModel(),
+        )
+    )
