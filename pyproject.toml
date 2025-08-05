@@ -1,6 +1,6 @@
 [project]
 name = "mockapi"
-version = "0.0.1"
+version = "0.0.3"
 description = ""
 authors = [
     {name = "Aleksei Devyatkin",email = "aleksei@devyatkin.dev"}
@@ -16,8 +16,9 @@ dependencies = [
     "fastapi-pagination (>=0.13.1,<0.14.0)",
     "websockets (>=15.0.1,<16.0.0)",
 ]
-package-mode = false
 
+[tool.poetry]
+package-mode = false
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

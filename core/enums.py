@@ -66,11 +66,6 @@ class ImageFormats(StrEnumWithValues):
     BGRA32_D30 = "BGRA32_D30"
 
 
-class GlintV1SecurityProtocols(StrEnumWithValues):
-    RDP = "RDP"
-    TLS = "TLS"
-
-
 class VideoCompressionCodecs(StrEnumWithValues):
     AVC420 = "AVC420"
 

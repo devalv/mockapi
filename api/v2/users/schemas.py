@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field
 from core.enums import (
     AudioPlaybakModes,
     ConnectionTypes,
-    GlintV1SecurityProtocols,
     ImageFormats,
     UserSCPermission,
     VideoCompressionCodecs,
@@ -52,6 +51,11 @@ class SecuritySettingsModel(BaseModel):
     sc_permissions: list[UserSCPermission] = []
 
 
+class WSChanMapping(BaseModel):
+    channel: str
+    event: str
+
+
 class MainSettingsModel(BaseModel):
     """
     Настройки хранящиеся на клиенте:
@@ -60,10 +64,19 @@ class MainSettingsModel(BaseModel):
         Протокол подключения (http || https)
     """
 
-    reset_settings: bool = False  # если придет клиенту - сбросить клиентские настройки на стандартные  TODO: а как это будет работать? флаг ведь должен быть 1-разовым
     default_remote_protocol: ConnectionTypes = ConnectionTypes.GLINT
     last_pool_autoconnect_ebabled: bool = False
-    # TODO: каналы подписок на события wss - не смог с ходу придумать зачем?
+    ws_channels: list[WSChanMapping] = [WSChanMapping(channel="api/v2/pools/ws", event="pool_update")]
+
+
+class GlintV1HardwareAccelerationOptions(BaseModel):
+    """
+    Настройки аппаратного ускорения.
+    """
+
+    hardware_acceleration_enabled: bool = False
+    video_compression_codec: VideoCompressionCodecs = VideoCompressionCodecs.AVC420
+    h264_bitreight_mbs: Annotated[int, Field(ge=1, le=5)] = 3
 
 
 class GlintV1SettingsModel(BaseModel):
@@ -71,6 +84,7 @@ class GlintV1SettingsModel(BaseModel):
     Настройки хранящиеся на клиенте:
         Проброс папок (только если есть разрешение из SecuritySettingsModel)
         Проброс буфера обмена (только если есть разрешение из SecuritySettingsModel)
+        Мониторы
     """
 
     image_format: ImageFormats = ImageFormats.BGRX32
@@ -80,13 +94,8 @@ class GlintV1SettingsModel(BaseModel):
     multi_screen_enabled: bool = False
     scale_image_enabled: bool = True
     full_image_redraw_enabled: bool = False
-    hardware_acceleration_enabled: bool = False
-    security_protocol: GlintV1SecurityProtocols = GlintV1SecurityProtocols.RDP
-    video_compression_codec: VideoCompressionCodecs = VideoCompressionCodecs.AVC420
-    h264_bitreight_mbs: Annotated[int, Field(ge=1, le=5)] = 3  # TODO: выше кодек AVC420, тут настройки h264 - непонятно
+    hardware_acceleration_options: GlintV1HardwareAccelerationOptions = GlintV1HardwareAccelerationOptions()
     audio_playback_mode: AudioPlaybakModes = AudioPlaybakModes.CLIENT
-    selected_display_settings: str | None = None
-    # TODO: SCImageResolution?
 
 
 class UserClientSettingsDataModel(BaseModel):
