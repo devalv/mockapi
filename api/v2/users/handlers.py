@@ -4,11 +4,11 @@ from typing import Annotated
 from fastapi import APIRouter, Response, Security, status
 
 from api.v2.users.schemas import (
+    GeneralSettingsModel,
     GlintV1SettingsModel,
     LoginInputModel,
-    MainSettingsModel,
+    NetSettingsModel,
     SecuritySettingsModel,
-    ServiceSettingsModel,
     TokenResponseModel,
     UserClientSettingsDataModel,
     UserClientSettingsModel,
@@ -57,9 +57,9 @@ async def logout(user: Annotated[User, Security(get_current_active_user)]):
 async def settings(user: Annotated[User, Security(get_current_active_user)]):
     return UserClientSettingsModel(
         data=UserClientSettingsDataModel(
-            service=ServiceSettingsModel(),
+            general=GeneralSettingsModel(),
+            net=NetSettingsModel(),
             security=SecuritySettingsModel(),
-            main=MainSettingsModel(),
-            glint_v1=GlintV1SettingsModel(),
+            protocols=[GlintV1SettingsModel()],
         )
     )
