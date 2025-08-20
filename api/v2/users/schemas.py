@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 from core.enums import (
     AudioPlaybakModes,
     ConnectionTypes,
+    ConnectionTypesMap,
     ImageFormats,
     UserSCPermission,
     VideoCompressionCodecs,
@@ -37,7 +38,7 @@ class GeneralSettingsModel(BaseModel):
 
     admin_mode_enabled: bool = False
     file_logging_enabled: bool = False
-    default_remote_protocol: ConnectionTypes = ConnectionTypes.GLINT
+    default_remote_protocol: ConnectionTypesMap = ConnectionTypesMap.GLINT
     last_pool_autoconnect_enabled: bool = False
     automatically_install_updates_enabled: bool = False
     documentation_url: str = "https://spacevm.ru/client-docs/latest/"
@@ -77,8 +78,8 @@ class RemoteProtocolBase(BaseModel):
     При добавлении нового протокола наследуем его от базового набора.
     """
 
-    id: int
-    name: str
+    id: ConnectionTypesMap
+    name: ConnectionTypes
     version: str
 
 
@@ -91,8 +92,8 @@ class GlintV1SettingsModel(RemoteProtocolBase):
         Мониторы
     """
 
-    id: int = 1
-    name: str = "glint"
+    id: ConnectionTypesMap = ConnectionTypesMap.GLINT
+    name: ConnectionTypes = ConnectionTypes.GLINT
     version: str = "1.0.0"
     image_format: ImageFormats = ImageFormats.BGRX32
     fps: Annotated[int, Field(ge=3, le=60)] = 30
