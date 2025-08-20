@@ -83,3 +83,9 @@ class UserSCPermission(StrEnumWithValues):
     PRINTERS_REDIR = "PRINTERS_REDIR"
     DRAG_AND_DROP_FILES = "DRAG_AND_DROP_FILES"
     VM_POWER_CONTROL = "VM_POWER_CONTROL"
+
+
+class ConnectionTypesMap(IntEnumWithValues):
+    GLINT = 1
+    RDP = 2
+    NATIVE_RDP = 3
