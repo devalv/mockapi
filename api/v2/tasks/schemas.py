@@ -17,3 +17,11 @@ class TaskShortModel(BaseModel):
 
 class TaskShortResponseModel(BaseModel):
     data: TaskShortModel
+
+
+class TaskIsDoneModel(BaseModel):
+    is_done: bool
+
+
+class TaskIsDoneResponseModel(BaseModel):
+    data: TaskIsDoneModel
