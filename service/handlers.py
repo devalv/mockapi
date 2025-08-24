@@ -67,3 +67,6 @@ async def get_all_users() -> list[ExtendedUserResponseModel]:
         ]
         response_data.append(user_schema_obj)
     return response_data
+
+
+# TODO: tasks list

@@ -42,6 +42,7 @@ async def pools(
         status.HTTP_403_FORBIDDEN: {"model": ValidationErrorModel},
         status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": ValidationErrorModel},
         status.HTTP_201_CREATED: {"model": PoolGetMachineResponseModel},
+        status.HTTP_404_NOT_FOUND: {"model": ValidationErrorModel},
     },
     response_model=PoolGetMachineResponseModel,
 )

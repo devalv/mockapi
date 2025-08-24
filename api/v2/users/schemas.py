@@ -125,5 +125,5 @@ class UserClientSettingsDataModel(BaseModel):
     protocols: list[GlintV1SettingsModel | RemoteProtocolBase] = [GlintV1SettingsModel()]
 
 
-class UserClientSettingsModel(BaseModel):
+class UserClientSettingsResponseModel(BaseModel):
     data: UserClientSettingsDataModel

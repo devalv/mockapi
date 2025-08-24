@@ -17,6 +17,14 @@ class ErrorCodes(IntEnumWithValues):
     UNKNOWN = 999
 
 
+class TaskStatuses(StrEnumWithValues):
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    CANCELLED = "CANCELLED"
+
+
 class EnitityStatuses(StrEnumWithValues):
     CREATING = "CREATING"
     ACTIVE = "ACTIVE"
