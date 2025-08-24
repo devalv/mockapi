@@ -51,6 +51,3 @@ async def is_done(user: Annotated[User, Security(get_current_active_user)], task
     if user_task["status"] in (TaskStatuses.COMPLETED, TaskStatuses.FAILED):
         return TaskIsDoneResponseModel(data=TaskIsDoneModel(is_done=True))
     return TaskIsDoneResponseModel(data=TaskIsDoneModel(is_done=False))
-
-
-# TODO: cancel task доступна автору задачи и администратору

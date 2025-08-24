@@ -8,13 +8,19 @@ from api.v2.pools.schemas import MachineShortResponseModel, PoolShortModel
 from core.db import (
     fake_machines_db,
     fake_pools_db,
+    fake_tasks_db,
     fake_users_db,
     fake_users_pools_db,
     get_user_machines,
     get_user_pools,
 )
 from core.enums import ConnectionTypes, EnitityStatuses, OSTypes, PoolTypes
-from service.schemas import CreatePoolRequestModel, CreatePoolResponseModel, ExtendedUserResponseModel
+from service.schemas import (
+    CreatePoolRequestModel,
+    CreatePoolResponseModel,
+    ExtendedTastShortModel,
+    ExtendedUserResponseModel,
+)
 
 service_router = APIRouter(tags=["service", "mock"], prefix="/service")
 
@@ -69,4 +75,10 @@ async def get_all_users() -> list[ExtendedUserResponseModel]:
     return response_data
 
 
-# TODO: tasks list
+@service_router.get("/all-tasks", status_code=status.HTTP_200_OK, response_model=list[ExtendedTastShortModel])
+async def get_all_tasks() -> list[ExtendedTastShortModel]:
+    response_data: list[ExtendedTastShortModel] = list()
+    for user_id, tasks in fake_tasks_db.items():
+        for task_id, task in tasks.items():
+            response_data.append(ExtendedTastShortModel(user_id=user_id, id=UUID(task_id), **task))
+    return response_data
