@@ -1,9 +1,13 @@
+import asyncio
+from datetime import datetime, timezone
+from random import choice, randint
 from typing import Annotated
 
 from fastapi import Depends, Security
 from fastapi.security import APIKeyHeader
 
-from core.db import get_user
+from core.db import fake_tasks_db, get_user
+from core.enums import TaskStatuses
 from core.errors import FORBIDEN_ERR, TOKEN_TYPE_ERR
 from core.schemas import TokenData, User
 
@@ -42,3 +46,23 @@ async def get_current_active_user(token: Annotated[TokenData, Depends(validate_a
     if not user:
         raise FORBIDEN_ERR
     return user
+
+
+async def start_pool_connection_data_task(user_id: str, task_id: str) -> None:
+    fake_tasks_db[user_id][task_id] = {
+        "status": TaskStatuses.PENDING,
+        "created": datetime.now(timezone.utc),
+        "started": None,
+        "finished": None,
+    }
+    await asyncio.sleep(3)
+    fake_tasks_db[user_id][task_id]["status"] = TaskStatuses.RUNNING
+    fake_tasks_db[user_id][task_id]["started"] = datetime.now(timezone.utc)
+    await asyncio.sleep(randint(5, 60))
+    fake_tasks_db[user_id][task_id]["status"] = choice((
+        TaskStatuses.CANCELLED,
+        TaskStatuses.COMPLETED,
+        TaskStatuses.FAILED,
+    ))
+    fake_tasks_db[user_id][task_id]["finished"] = datetime.now(timezone.utc)
+    return None

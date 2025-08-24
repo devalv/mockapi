@@ -1,4 +1,6 @@
+import asyncio
 from typing import Annotated, Any
+from uuid import uuid4
 
 from fastapi import APIRouter, Security, WebSocket, status
 from fastapi_pagination import paginate
@@ -14,9 +16,10 @@ from core.db import get_user_pools
 from core.errors import NOT_FOUND_ERR
 from core.schemas import DEFAULT_RESPONSES, User, ValidationErrorModel
 from core.unifiers import UnifiedPage
-from core.utils import get_current_active_user
+from core.utils import get_current_active_user, start_pool_connection_data_task
 
 v2_pools_router = APIRouter(tags=["pools"], prefix="/pools")
+background_tasks = set()
 
 
 @v2_pools_router.get(
@@ -56,6 +59,8 @@ async def pool_connect(
     # TODO: отдельная ручка для каждого вида пулов?
     # TODO: отдельная ручка для получения машины (когда она уже есть?) Если машины нет - отвечаем, что машины нет - надо попробовать получить.
     # TODO: wip
+
+    # TODO: вынести на уровень Dependency Injection
     db_pools: list[dict[str, Any]] = get_user_pools(str(user.id))
     user_pool: PoolShortModel | None = None
     for db_pool in db_pools:
@@ -64,11 +69,22 @@ async def pool_connect(
             break
     if not user_pool:
         raise NOT_FOUND_ERR
+    # пул найден - запускаем расширение
+    # TODO: проверить нет ли у пользователя уже задачи на подключение к этому пулу?
+
+    # TODO: как в случае ошибки пользователю будет показана информация? Можно показывать статус выполнения завершенной задачи как сообщение об ошибке?
+    # TODO: например, через код ошибки
+    expand_task_id: str = f"{uuid4()}"
+    connect_task = asyncio.create_task(start_pool_connection_data_task(f"{user.id}", expand_task_id))
+    background_tasks.add(connect_task)
+    connect_task.add_done_callback(background_tasks.discard)
+
     return PoolShortResponseModel(data=user_pool)
 
 
 @v2_pools_router.websocket("/ws")
 async def pools_ws(websocket: WebSocket) -> None:
+    # TODO: wip - отправка сообщений о статусе выполнения задачи
     await websocket.accept()
     while True:
         data = await websocket.receive_text()
