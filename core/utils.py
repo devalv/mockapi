@@ -80,3 +80,14 @@ async def get_user_active_task(user_id: str) -> dict[str, Any] | None:
         if task["status"] in (TaskStatuses.PENDING, TaskStatuses.RUNNING):
             return {"id": task_id, **task}
     return None
+
+
+async def get_user_done_task(user_id: str) -> dict[str, Any] | None:
+    # нет информации о задачах
+    if user_id not in fake_tasks_db:
+        return None
+
+    for task_id, task in fake_tasks_db[user_id].items():
+        if task["status"] in (TaskStatuses.COMPLETED, TaskStatuses.FAILED, TaskStatuses.CANCELLED):
+            return {"id": task_id, **task}
+    return None

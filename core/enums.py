@@ -15,6 +15,7 @@ class StrEnumWithValues(StrEnum):
 
 class ErrorCodes(IntEnumWithValues):
     UNKNOWN = 999
+    POOL_EXPAND_FAILED = 800
 
 
 class TaskStatuses(StrEnumWithValues):

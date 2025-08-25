@@ -34,3 +34,9 @@ NOT_FOUND_ERR: MockApiHTTPError = MockApiHTTPError(
     detail=[DetailContent(msg="Not found.", err_code=ErrorCodes.UNKNOWN).model_dump()],
     headers={"WWW-Authenticate": "JWT"},
 )
+
+POOL_EXPAND_FAILED_ERR: MockApiHTTPError = MockApiHTTPError(
+    status_code=status.HTTP_403_FORBIDDEN,
+    detail=[DetailContent(msg="Not found.", err_code=ErrorCodes.POOL_EXPAND_FAILED).model_dump()],
+    headers={"WWW-Authenticate": "JWT"},
+)

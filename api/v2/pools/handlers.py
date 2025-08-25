@@ -17,10 +17,15 @@ from api.v2.pools.schemas import (
 from api.v2.tasks.schemas import TaskShortModel
 from core.db import get_user_pools
 from core.enums import TaskStatuses
-from core.errors import NOT_FOUND_ERR
+from core.errors import NOT_FOUND_ERR, POOL_EXPAND_FAILED_ERR
 from core.schemas import DEFAULT_RESPONSES, User, ValidationErrorModel
 from core.unifiers import UnifiedPage
-from core.utils import get_current_active_user, get_user_active_task, start_pool_connection_data_task
+from core.utils import (
+    get_current_active_user,
+    get_user_active_task,
+    get_user_done_task,
+    start_pool_connection_data_task,
+)
 
 v2_pools_router = APIRouter(tags=["pools"], prefix="/pools")
 background_tasks = set()
@@ -62,19 +67,30 @@ async def pool_connect(
     # TODO: wip
     # TODO: отдельная ручка для каждого вида пулов?
 
-    # TODO: сценарий, когда пул не может расширяться
-    db_pools: list[dict[str, Any]] = get_user_pools(str(user.id))
-    # TODO: изменить
-    user_pool: PoolShortModel | None = None
-    for db_pool in db_pools:
+    # TODO: сценарий, когда пул не может расширяться (дополнительный атрибут в "БД")
+
+    user_has_bool: bool = False
+    for db_pool in get_user_pools(str(user.id)):
         if db_pool["id"] == id.hex:
-            user_pool = PoolShortModel(**db_pool)
+            user_has_bool = True
             break
-    if not user_pool:
+
+    if not user_has_bool:
         raise NOT_FOUND_ERR
 
-    # TODO: как в случае ошибки пользователю будет показана информация? Можно показывать статус выполнения завершенной задачи как сообщение об ошибке?
-    # TODO: например, через код ошибки
+    # TODO: есть уже выполненная задача - возвращаем данные для подключения к пулу
+    if done_task := await get_user_done_task(f"{user.id}"):
+        if done_task["status"] == TaskStatuses.CANCELLED:
+            # задача была отменена и требует повторного запуска
+            pass
+        elif done_task["status"] == TaskStatuses.COMPLETED:
+            # задача выполнена успешно - возвращаем данные для подключения
+            # TODO: wip
+            # return JSONResponse()  # noqa ERA001
+            raise NotImplementedError
+        elif done_task["status"] == TaskStatuses.FAILED:
+            # задача провалена - предположим, что пул не может расширяться или иметь подключение
+            raise POOL_EXPAND_FAILED_ERR
 
     # пул найден - запускаем расширение
     if active_task := await get_user_active_task(f"{user.id}"):
