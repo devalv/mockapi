@@ -119,7 +119,7 @@ def get_user_machines(user_id: str) -> list[dict[str, Any]]:
 
 # {"owner": {"task_id": {"status": "PENDING", "created": "2022-01-01T00:00:00.000000+00:00", "started": "2022-01-01T00:00:00.000000+00:00", "finished": "2022-01-01T00:00:00.000000+00:00"}, ...}, ...}
 fake_tasks_db: dict[str, dict[str, Any]] = {
-    "7e1459c2-3e19-4c3d-98f5-8344d44ae6f4": {
+    "516d600c-4273-40b8-8f5c-105cc3a4bbc9": {
         "fabb9a84-ae96-4d07-b5a0-329ea70fa476": {
             "status": "PENDING",
             "created": "2022-01-01T00:00:00.000000+00:00",

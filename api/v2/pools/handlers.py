@@ -1,22 +1,26 @@
 import asyncio
+from datetime import datetime, timezone
 from typing import Annotated, Any
 from uuid import uuid4
 
 from fastapi import APIRouter, Security, WebSocket, status
+from fastapi.responses import JSONResponse
 from fastapi_pagination import paginate
 from pydantic import UUID4
 
 from api.v2.pools.schemas import (
+    PoolGetMachineActiveTaskResponseModel,
     PoolGetMachineRequestModel,
     PoolGetMachineResponseModel,
     PoolShortModel,
-    PoolShortResponseModel,
 )
+from api.v2.tasks.schemas import TaskShortModel
 from core.db import get_user_pools
+from core.enums import TaskStatuses
 from core.errors import NOT_FOUND_ERR
 from core.schemas import DEFAULT_RESPONSES, User, ValidationErrorModel
 from core.unifiers import UnifiedPage
-from core.utils import get_current_active_user, start_pool_connection_data_task
+from core.utils import get_current_active_user, get_user_active_task, start_pool_connection_data_task
 
 v2_pools_router = APIRouter(tags=["pools"], prefix="/pools")
 background_tasks = set()
@@ -40,28 +44,27 @@ async def pools(
 
 @v2_pools_router.post(
     "/{id}/connect/",
-    status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_403_FORBIDDEN: {"model": ValidationErrorModel},
         status.HTTP_422_UNPROCESSABLE_ENTITY: {"model": ValidationErrorModel},
-        status.HTTP_201_CREATED: {"model": PoolGetMachineResponseModel},
+        status.HTTP_200_OK: {"model": PoolGetMachineResponseModel},
+        status.HTTP_202_ACCEPTED: {"model": PoolGetMachineActiveTaskResponseModel},
         status.HTTP_404_NOT_FOUND: {"model": ValidationErrorModel},
     },
-    response_model=PoolGetMachineResponseModel,
 )
 async def pool_connect(
     user: Annotated[User, Security(get_current_active_user)], id: UUID4, request_model: PoolGetMachineRequestModel
-) -> PoolShortResponseModel:
+) -> JSONResponse:
     """Получение машины из пула.
 
     Если у пользователя есть права доступа к пулу, но, отсутствует машина - выполняется попытка создания новой и закрепление её за пользователем.
     """
-    # TODO: отдельная ручка для каждого вида пулов?
-    # TODO: отдельная ручка для получения машины (когда она уже есть?) Если машины нет - отвечаем, что машины нет - надо попробовать получить.
     # TODO: wip
+    # TODO: отдельная ручка для каждого вида пулов?
 
-    # TODO: вынести на уровень Dependency Injection
+    # TODO: сценарий, когда пул не может расширяться
     db_pools: list[dict[str, Any]] = get_user_pools(str(user.id))
+    # TODO: изменить
     user_pool: PoolShortModel | None = None
     for db_pool in db_pools:
         if db_pool["id"] == id.hex:
@@ -69,17 +72,34 @@ async def pool_connect(
             break
     if not user_pool:
         raise NOT_FOUND_ERR
-    # пул найден - запускаем расширение
-    # TODO: проверить нет ли у пользователя уже задачи на подключение к этому пулу?
 
     # TODO: как в случае ошибки пользователю будет показана информация? Можно показывать статус выполнения завершенной задачи как сообщение об ошибке?
     # TODO: например, через код ошибки
+
+    # пул найден - запускаем расширение
+    if active_task := await get_user_active_task(f"{user.id}"):
+        return JSONResponse(
+            PoolGetMachineActiveTaskResponseModel(data=TaskShortModel(**active_task)).model_dump(mode="json"),
+            status_code=status.HTTP_202_ACCEPTED,
+        )
+
     expand_task_id: str = f"{uuid4()}"
     connect_task = asyncio.create_task(start_pool_connection_data_task(f"{user.id}", expand_task_id))
     background_tasks.add(connect_task)
     connect_task.add_done_callback(background_tasks.discard)
 
-    return PoolShortResponseModel(data=user_pool)
+    return JSONResponse(
+        PoolGetMachineActiveTaskResponseModel(
+            data=TaskShortModel(**{
+                "status": TaskStatuses.PENDING,
+                "created": datetime.now(timezone.utc),
+                "started": None,
+                "finished": None,
+                "id": expand_task_id,
+            })
+        ).model_dump(mode="json"),
+        status_code=status.HTTP_202_ACCEPTED,
+    )
 
 
 @v2_pools_router.websocket("/ws")

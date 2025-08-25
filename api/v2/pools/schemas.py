@@ -3,6 +3,7 @@ from typing import Annotated
 from pydantic import UUID4, BaseModel, Field
 from pydantic.networks import IPvAnyAddress
 
+from api.v2.tasks.schemas import TaskShortModel
 from core.enums import ConnectionTypes, EnitityStatuses, OSTypes, PermissionTypes, PoolTypes
 
 
@@ -39,3 +40,7 @@ class MachineShortResponseModel(BaseModel):
 
 class PoolGetMachineResponseModel(BaseModel):
     data: MachineShortResponseModel
+
+
+class PoolGetMachineActiveTaskResponseModel(BaseModel):
+    data: TaskShortModel

@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime, timezone
 from random import choice, randint
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import Depends, Security
 from fastapi.security import APIKeyHeader
@@ -49,6 +49,9 @@ async def get_current_active_user(token: Annotated[TokenData, Depends(validate_a
 
 
 async def start_pool_connection_data_task(user_id: str, task_id: str) -> None:
+    if fake_tasks_db.get(user_id) is None:
+        fake_tasks_db[user_id] = dict()
+
     fake_tasks_db[user_id][task_id] = {
         "status": TaskStatuses.PENDING,
         "created": datetime.now(timezone.utc),
@@ -65,4 +68,15 @@ async def start_pool_connection_data_task(user_id: str, task_id: str) -> None:
         TaskStatuses.FAILED,
     ))
     fake_tasks_db[user_id][task_id]["finished"] = datetime.now(timezone.utc)
+    return None
+
+
+async def get_user_active_task(user_id: str) -> dict[str, Any] | None:
+    # нет информации о задачах
+    if user_id not in fake_tasks_db:
+        return None
+
+    for task_id, task in fake_tasks_db[user_id].items():
+        if task["status"] in (TaskStatuses.PENDING, TaskStatuses.RUNNING):
+            return {"id": task_id, **task}
     return None
