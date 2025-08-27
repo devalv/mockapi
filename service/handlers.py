@@ -79,6 +79,6 @@ async def get_all_users() -> list[ExtendedUserResponseModel]:
 async def get_all_tasks() -> list[ExtendedTastShortModel]:
     response_data: list[ExtendedTastShortModel] = list()
     for user_id, tasks in fake_tasks_db.items():
-        for task_id, task in tasks.items():
-            response_data.append(ExtendedTastShortModel(user_id=user_id, id=UUID(task_id), **task))
+        for _, task in tasks.items():
+            response_data.append(ExtendedTastShortModel(user_id=user_id, **task))
     return response_data

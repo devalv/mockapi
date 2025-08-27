@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from typing import Annotated, Any
 from uuid import uuid4
 
-from fastapi import APIRouter, Security, WebSocket, status
+from fastapi import APIRouter, Security, WebSocket, WebSocketDisconnect, status
 from fastapi.responses import JSONResponse
 from fastapi_pagination import paginate
 from pydantic import UUID4
@@ -27,6 +27,7 @@ from core.utils import (
     get_user_done_task,
     start_pool_connection_data_task,
 )
+from core.ws import ws_manager
 
 v2_pools_router = APIRouter(tags=["pools"], prefix="/pools")
 background_tasks = set()
@@ -126,10 +127,16 @@ async def pool_connect(
     )
 
 
-@v2_pools_router.websocket("/ws")
-async def pools_ws(websocket: WebSocket) -> None:
-    # TODO: wip - отправка сообщений о статусе выполнения задачи
-    await websocket.accept()
-    while True:
-        data = await websocket.receive_text()
-        await websocket.send_text(f"Message text was: {data}")
+# TODO: @app.websocket("/ws/{client_id}")?
+# TODO: async def websocket_endpoint(websocket: WebSocket, client_id: int):
+@v2_pools_router.websocket("/ws/")
+async def pools_update_ws(websocket: WebSocket) -> None:
+    # TODO: client_id должен храниться в JWTтокене, тогда можно будет персонализировать сообщения конкретному клиенту
+    await ws_manager.connect(websocket)
+    # WS Headers!
+    try:
+        while True:
+            data = await websocket.receive_text()
+            await ws_manager.send_personal_message(f"You sent: {data}", websocket)
+    except WebSocketDisconnect:
+        ws_manager.disconnect(websocket)

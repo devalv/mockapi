@@ -10,6 +10,7 @@ from core.db import fake_tasks_db, get_user
 from core.enums import TaskStatuses
 from core.errors import FORBIDEN_ERR, TOKEN_TYPE_ERR
 from core.schemas import TokenData, User
+from core.ws import ws_manager
 
 api_access_key_header = APIKeyHeader(name="Authorization", auto_error=False)
 
@@ -57,10 +58,12 @@ async def start_pool_connection_data_task(user_id: str, task_id: str) -> None:
         "created": datetime.now(timezone.utc),
         "started": None,
         "finished": None,
+        "id": task_id,
     }
     await asyncio.sleep(3)
     fake_tasks_db[user_id][task_id]["status"] = TaskStatuses.RUNNING
     fake_tasks_db[user_id][task_id]["started"] = datetime.now(timezone.utc)
+    await ws_manager.broadcast(fake_tasks_db[user_id][task_id])
     await asyncio.sleep(randint(5, 60))
     fake_tasks_db[user_id][task_id]["status"] = choice((
         TaskStatuses.CANCELLED,
@@ -68,6 +71,7 @@ async def start_pool_connection_data_task(user_id: str, task_id: str) -> None:
         TaskStatuses.FAILED,
     ))
     fake_tasks_db[user_id][task_id]["finished"] = datetime.now(timezone.utc)
+    await ws_manager.broadcast(fake_tasks_db[user_id][task_id])
     return None
 
 
@@ -88,11 +92,11 @@ async def get_user_done_task(user_id: str) -> dict[str, Any] | None:
         return None
 
     # задачи в статусе COMPLETED интересуют в первую очередь
-    for task_id, task in fake_tasks_db[user_id].items():
+    for _, task in fake_tasks_db[user_id].items():
         if task["status"] == TaskStatuses.COMPLETED:
-            return {"id": task_id, **task}
+            return task
 
-    for task_id, task in fake_tasks_db[user_id].items():
+    for _, task in fake_tasks_db[user_id].items():
         if task["status"] in (TaskStatuses.FAILED, TaskStatuses.CANCELLED):
-            return {"id": task_id, **task}
+            return task
     return None

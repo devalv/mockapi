@@ -61,7 +61,7 @@ class NetSettingsModel(BaseModel):
     """
 
     network_timeout: Annotated[int, Field(ge=5, le=60)] = 15
-    ws_channels: list[WSChanMapping] = [WSChanMapping(channel="api/v2/pools/ws", event="pool_update")]
+    ws_channels: list[WSChanMapping] = [WSChanMapping(channel="api/v2/pools/ws/", event="pool_update")]
 
 
 class GlintV1HardwareAccelerationOptions(BaseModel):
