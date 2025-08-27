@@ -4,7 +4,7 @@ from pydantic import UUID4, BaseModel, Field
 from pydantic.networks import IPvAnyAddress
 
 from api.v2.tasks.schemas import TaskShortModel
-from core.enums import ConnectionTypes, EnitityStatuses, OSTypes, PermissionTypes, PoolTypes
+from core.enums import ConnectionTypes, ConnectionTypesMap, EnitityStatuses, OSTypes, PermissionTypes, PoolTypes
 
 
 class PoolShortModel(BaseModel):
@@ -29,13 +29,16 @@ class PoolGetMachineRequestModel(BaseModel):
 
 
 class MachineShortResponseModel(BaseModel):
+    """Существенно сокращенные данные для подключения к ВМ. Формат будет уточнён по ходу проверок."""
+
     id: UUID4
     verbose_name: str
     permissions: list[PermissionTypes]
     host: IPvAnyAddress
-    vm_controller_address: IPvAnyAddress
+    # vm_controller_address: IPvAnyAddress  # TODO: предположительно не нужно  # noqa ERA001
     port: Annotated[int, Field(ge=1, le=65535)]
     status: EnitityStatuses
+    protocol_id: ConnectionTypesMap
 
 
 class PoolGetMachineResponseModel(BaseModel):

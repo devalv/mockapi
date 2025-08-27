@@ -87,7 +87,12 @@ async def get_user_done_task(user_id: str) -> dict[str, Any] | None:
     if user_id not in fake_tasks_db:
         return None
 
+    # задачи в статусе COMPLETED интересуют в первую очередь
     for task_id, task in fake_tasks_db[user_id].items():
-        if task["status"] in (TaskStatuses.COMPLETED, TaskStatuses.FAILED, TaskStatuses.CANCELLED):
+        if task["status"] == TaskStatuses.COMPLETED:
+            return {"id": task_id, **task}
+
+    for task_id, task in fake_tasks_db[user_id].items():
+        if task["status"] in (TaskStatuses.FAILED, TaskStatuses.CANCELLED):
             return {"id": task_id, **task}
     return None

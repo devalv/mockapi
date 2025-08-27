@@ -9,6 +9,7 @@ from fastapi_pagination import paginate
 from pydantic import UUID4
 
 from api.v2.pools.schemas import (
+    MachineShortResponseModel,
     PoolGetMachineActiveTaskResponseModel,
     PoolGetMachineRequestModel,
     PoolGetMachineResponseModel,
@@ -16,7 +17,7 @@ from api.v2.pools.schemas import (
 )
 from api.v2.tasks.schemas import TaskShortModel
 from core.db import get_user_pools
-from core.enums import TaskStatuses
+from core.enums import ConnectionTypesMap, EnitityStatuses, PermissionTypes, TaskStatuses
 from core.errors import NOT_FOUND_ERR, POOL_EXPAND_FAILED_ERR
 from core.schemas import DEFAULT_RESPONSES, User, ValidationErrorModel
 from core.unifiers import UnifiedPage
@@ -64,10 +65,7 @@ async def pool_connect(
 
     Если у пользователя есть права доступа к пулу, но, отсутствует машина - выполняется попытка создания новой и закрепление её за пользователем.
     """
-    # TODO: wip
-    # TODO: отдельная ручка для каждого вида пулов?
-
-    # TODO: сценарий, когда пул не может расширяться (дополнительный атрибут в "БД")
+    # TODO: отдельная ручка для каждого вида пулов - вопрос для обсуждения.
 
     user_has_bool: bool = False
     for db_pool in get_user_pools(str(user.id)):
@@ -78,16 +76,26 @@ async def pool_connect(
     if not user_has_bool:
         raise NOT_FOUND_ERR
 
-    # TODO: есть уже выполненная задача - возвращаем данные для подключения к пулу
     if done_task := await get_user_done_task(f"{user.id}"):
         if done_task["status"] == TaskStatuses.CANCELLED:
             # задача была отменена и требует повторного запуска
             pass
         elif done_task["status"] == TaskStatuses.COMPLETED:
             # задача выполнена успешно - возвращаем данные для подключения
-            # TODO: wip
-            # return JSONResponse()  # noqa ERA001
-            raise NotImplementedError
+            return JSONResponse(
+                PoolGetMachineResponseModel(
+                    data=MachineShortResponseModel(**{
+                        "id": "fd19c462-b8f1-43cc-81a8-31abc9ff4877",
+                        "verbose_name": "mock-glint-server",
+                        "permissions": [PermissionTypes.VM_POWER_CONTROL],
+                        "host": "10.254.150.133",
+                        "port": 39897,
+                        "status": EnitityStatuses.ACTIVE,
+                        "protocol_id": ConnectionTypesMap.GLINTV1,
+                    })
+                ).model_dump(mode="json"),
+                status_code=status.HTTP_200_OK,
+            )
         elif done_task["status"] == TaskStatuses.FAILED:
             # задача провалена - предположим, что пул не может расширяться или иметь подключение
             raise POOL_EXPAND_FAILED_ERR

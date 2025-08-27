@@ -37,6 +37,10 @@ NOT_FOUND_ERR: MockApiHTTPError = MockApiHTTPError(
 
 POOL_EXPAND_FAILED_ERR: MockApiHTTPError = MockApiHTTPError(
     status_code=status.HTTP_403_FORBIDDEN,
-    detail=[DetailContent(msg="Not found.", err_code=ErrorCodes.POOL_EXPAND_FAILED).model_dump()],
+    detail=[
+        DetailContent(
+            msg="Pool cannot be expanded. Administrator required.", err_code=ErrorCodes.POOL_EXPAND_FAILED
+        ).model_dump()
+    ],
     headers={"WWW-Authenticate": "JWT"},
 )

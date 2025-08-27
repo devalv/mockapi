@@ -38,9 +38,9 @@ class GeneralSettingsModel(BaseModel):
 
     admin_mode_enabled: bool = False
     file_logging_enabled: bool = False
-    default_remote_protocol: ConnectionTypesMap = ConnectionTypesMap.GLINT
+    default_remote_protocol: ConnectionTypesMap = ConnectionTypesMap.GLINTV1
     last_pool_autoconnect_enabled: bool = False
-    automatically_install_updates_enabled: bool = False
+    automatically_install_updates_enabled: bool = True
     documentation_url: str = "https://spacevm.ru/client-docs/latest/"
 
 
@@ -69,7 +69,7 @@ class GlintV1HardwareAccelerationOptions(BaseModel):
 
     hardware_acceleration_enabled: bool = False
     video_compression_codec: VideoCompressionCodecs = VideoCompressionCodecs.AVC420
-    h264_bitreight_mbs: Annotated[int, Field(ge=1, le=5)] = 3
+    h264_bitrate_mbs: Annotated[int, Field(ge=1, le=5)] = 3
 
 
 class RemoteProtocolBase(BaseModel):
@@ -92,7 +92,7 @@ class GlintV1SettingsModel(RemoteProtocolBase):
         Мониторы
     """
 
-    id: ConnectionTypesMap = ConnectionTypesMap.GLINT
+    id: ConnectionTypesMap = ConnectionTypesMap.GLINTV1
     name: ConnectionTypes = ConnectionTypes.GLINT
     version: str = "1.0.0"
     image_format: ImageFormats = ImageFormats.BGRX32

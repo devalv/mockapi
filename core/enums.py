@@ -95,6 +95,6 @@ class UserSCPermission(StrEnumWithValues):
 
 
 class ConnectionTypesMap(IntEnumWithValues):
-    GLINT = 1
+    GLINTV1 = 1
     RDP = 2
     NATIVE_RDP = 3
