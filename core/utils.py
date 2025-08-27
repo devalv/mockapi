@@ -1,9 +1,9 @@
 import asyncio
 from datetime import datetime, timezone
 from random import choice, randint
-from typing import Annotated, Any
+from typing import Annotated, Any, Union
 
-from fastapi import Depends, Security
+from fastapi import Depends, Header, Security
 from fastapi.security import APIKeyHeader
 
 from core.db import fake_tasks_db, get_user
@@ -43,6 +43,31 @@ async def validate_api_access_key(api_key_header: str = Security(api_access_key_
 async def get_current_active_user(token: Annotated[TokenData, Depends(validate_api_access_key)]) -> User:
     # https://github.com/devalv/yawm/blob/main/backend/core/services/security/auth.py
     # TODO: прочитать содержимое токена и извлечь пользователя из БД
+    user: User | None = authenticate_user(token.username, "")
+    if not user:
+        raise FORBIDEN_ERR
+    return user
+
+
+async def get_user_token_key(cookie: Annotated[Union[str, None], Header()] = None):
+    return cookie
+
+
+async def validate_ws_api_access_key(api_key_header: str = Security(get_user_token_key)):
+    """Проверка jwt-access-токена пользователя."""
+    try:
+        token_type, token_value = api_key_header.split(" ")
+        if token_type != "JWT":
+            raise TOKEN_TYPE_ERR
+        return TokenData.decode(token_value)
+    except Exception as e:
+        print(e)  # noqa T201
+
+    # TODO: проверка токена в сессиях?
+    raise FORBIDEN_ERR
+
+
+async def get_ws_connection_active_user(token: Annotated[TokenData, Depends(validate_ws_api_access_key)]) -> User:
     user: User | None = authenticate_user(token.username, "")
     if not user:
         raise FORBIDEN_ERR

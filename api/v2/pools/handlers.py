@@ -25,6 +25,7 @@ from core.utils import (
     get_current_active_user,
     get_user_active_task,
     get_user_done_task,
+    get_ws_connection_active_user,
     start_pool_connection_data_task,
 )
 from core.ws import ws_manager
@@ -130,13 +131,12 @@ async def pool_connect(
 # TODO: @app.websocket("/ws/{client_id}")?
 # TODO: async def websocket_endpoint(websocket: WebSocket, client_id: int):
 @v2_pools_router.websocket("/ws/")
-async def pools_update_ws(websocket: WebSocket) -> None:
+async def pools_update_ws(websocket: WebSocket, user: Annotated[User, Security(get_ws_connection_active_user)]) -> None:
     # TODO: client_id должен храниться в JWTтокене, тогда можно будет персонализировать сообщения конкретному клиенту
     await ws_manager.connect(websocket)
-    # WS Headers!
     try:
         while True:
             data = await websocket.receive_text()
-            await ws_manager.send_personal_message(f"You sent: {data}", websocket)
+            await ws_manager.send_personal_message(f"User {user.username} sent: {data}", websocket)
     except WebSocketDisconnect:
         ws_manager.disconnect(websocket)
