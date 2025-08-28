@@ -115,3 +115,23 @@ def get_user_machines(user_id: str) -> list[dict[str, Any]]:
             machines.append(fake_machines_db[machine])
         return machines
     return []
+
+
+fake_tasks_db: dict[str, dict[str, Any]] = {
+    "516d600c-4273-40b8-8f5c-105cc3a4bbc9": {
+        "fabb9a84-ae96-4d07-b5a0-329ea70fa476": {
+            "status": "PENDING",
+            "created": "2022-01-01T00:00:00.000000+00:00",
+            "started": None,
+            "finished": None,
+            "id": "fabb9a84-ae96-4d07-b5a0-329ea70fa476",
+        }
+    }
+}
+
+
+def get_user_task(user_id: str, task_id: str) -> dict[str, Any]:
+    user_task_ids: dict[str, Any] = fake_tasks_db[user_id]
+    if user_task_ids:
+        return user_task_ids.get(task_id, dict())
+    return dict()

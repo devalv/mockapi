@@ -15,6 +15,16 @@ class StrEnumWithValues(StrEnum):
 
 class ErrorCodes(IntEnumWithValues):
     UNKNOWN = 999
+    POOL_EXPAND_FAILED = 800
+    NO_PERM = 900
+
+
+class TaskStatuses(StrEnumWithValues):
+    PENDING = "PENDING"
+    RUNNING = "RUNNING"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    CANCELLED = "CANCELLED"
 
 
 class EnitityStatuses(StrEnumWithValues):
@@ -86,6 +96,6 @@ class UserSCPermission(StrEnumWithValues):
 
 
 class ConnectionTypesMap(IntEnumWithValues):
-    GLINT = 1
+    GLINTV1 = 1
     RDP = 2
     NATIVE_RDP = 3

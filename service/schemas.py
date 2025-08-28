@@ -3,6 +3,7 @@ from typing import Annotated
 from pydantic import BaseModel, Field
 
 from api.v2.pools.schemas import MachineShortResponseModel, PoolShortModel
+from api.v2.tasks.schemas import TaskShortModel
 from core.schemas import User
 
 
@@ -19,3 +20,7 @@ class CreatePoolResponseModel(PoolShortModel):
 class ExtendedUserResponseModel(User):
     assigned_pools: list[PoolShortModel] = []
     assigned_machines: list[MachineShortResponseModel] = []
+
+
+class ExtendedTastShortModel(TaskShortModel):
+    user_id: str
