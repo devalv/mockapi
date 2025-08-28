@@ -18,7 +18,7 @@ from api.v2.pools.schemas import (
 from api.v2.tasks.schemas import TaskShortModel
 from core.db import get_user_pools
 from core.enums import ConnectionTypesMap, EnitityStatuses, PermissionTypes, TaskStatuses
-from core.errors import NOT_FOUND_ERR, POOL_EXPAND_FAILED_ERR
+from core.errors import NO_PERM_ERR, POOL_EXPAND_FAILED_ERR
 from core.schemas import DEFAULT_RESPONSES, User, ValidationErrorModel
 from core.unifiers import UnifiedPage
 from core.utils import (
@@ -76,7 +76,7 @@ async def pool_connect(
             break
 
     if not user_has_bool:
-        raise NOT_FOUND_ERR
+        raise NO_PERM_ERR
 
     if done_task := await get_user_done_task(f"{user.id}"):
         if done_task["status"] == TaskStatuses.CANCELLED:
