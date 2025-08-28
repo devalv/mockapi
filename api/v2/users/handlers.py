@@ -11,7 +11,7 @@ from api.v2.users.schemas import (
     SecuritySettingsModel,
     TokenResponseModel,
     UserClientSettingsDataModel,
-    UserClientSettingsModel,
+    UserClientSettingsResponseModel,
 )
 from core.errors import CREDENTIALS_ERR
 from core.schemas import DEFAULT_RESPONSES, Token, TokenData, User, ValidationErrorModel
@@ -53,9 +53,9 @@ async def logout(user: Annotated[User, Security(get_current_active_user)]):
     return None
 
 
-@v2_users_router.get("/settings/", responses=DEFAULT_RESPONSES, response_model=UserClientSettingsModel)
+@v2_users_router.get("/settings/", responses=DEFAULT_RESPONSES, response_model=UserClientSettingsResponseModel)
 async def settings(user: Annotated[User, Security(get_current_active_user)]):
-    return UserClientSettingsModel(
+    return UserClientSettingsResponseModel(
         data=UserClientSettingsDataModel(
             general=GeneralSettingsModel(),
             net=NetSettingsModel(),

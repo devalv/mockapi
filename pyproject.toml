@@ -1,6 +1,6 @@
 [project]
 name = "mockapi"
-version = "0.0.3"
+version = "0.0.5"
 description = ""
 authors = [
     {name = "Aleksei Devyatkin",email = "aleksei@devyatkin.dev"}
@@ -65,8 +65,8 @@ select = [
 # Same as Black.(for future format in ruff)
 line-length = 120
 
-# Assume Python 3.7
-target-version = "py37"
+# Assume Python 3.11
+target-version = "py311"
 
 [tool.ruff.isort]
 known-first-party = ["api", "core"]
