@@ -50,6 +50,11 @@ async def pools(
     return paginate(model_pools)
 
 
+# TODO: @v2_pools_router.get(
+# "/{id}/", status_code=status.HTTP_202_ACCEPTED, responses=DEFAULT_RESPONSES, response_model=PoolShortResponseModel)
+# TODO: в этой ручке мы готовим ВМ и пул для подключения?
+
+
 @v2_pools_router.post(
     "/{id}/connect/",
     responses={
@@ -63,11 +68,14 @@ async def pools(
 async def pool_connect(
     user: Annotated[User, Security(get_current_active_user)], id: UUID4, request_model: PoolGetMachineRequestModel
 ) -> JSONResponse:
-    """Получение машины из пула.
+    """Запрос на подключение к пулу после выполненной задачи.
 
-    Если у пользователя есть права доступа к пулу, но, отсутствует машина - выполняется попытка создания новой и закрепление её за пользователем.
+    Если нет выполненной задачи или задача завершилась неуспешно - вернется провал.
+    Если задача выполнена - вернутся данные на подключение.
+    Если задача ещё выполняется - вернется активная задача?
+    Тут при подключении пересылаются данные для подключения лаунчером.
+    TODO: Подключаясь к пулу, лаунчер должен запустить задачу на подключение (отдельную - тут мы будем вощварщать её результат?).
     """
-    # TODO: отдельная ручка для каждого вида пулов - вопрос для обсуждения.
 
     user_has_bool: bool = False
     for db_pool in get_user_pools(str(user.id)):
