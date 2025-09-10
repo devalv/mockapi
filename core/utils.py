@@ -7,7 +7,7 @@ from uuid import UUID, uuid4
 from fastapi import Depends, Header, Security
 from fastapi.security import APIKeyHeader
 
-from core.db import fake_tasks_db, get_user, fake_machines_db, fake_users_machines_db
+from core.db import fake_machines_db, fake_tasks_db, fake_users_machines_db, get_user
 from core.enums import EnitityStatuses, TaskKinds, TaskStatuses
 from core.errors import FORBIDEN_ERR, TOKEN_TYPE_ERR
 from core.schemas import TokenData, User

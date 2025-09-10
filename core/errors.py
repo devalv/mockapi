@@ -50,6 +50,10 @@ POOL_EXPAND_FAILED_ERR: MockApiHTTPError = MockApiHTTPError(
 
 NO_ELIGIBLE_MACHINE_ERR: MockApiHTTPError = MockApiHTTPError(
     status_code=status.HTTP_409_CONFLICT,
-    detail=[DetailContent(msg="No eligible machine found for user connection.", err_code=ErrorCodes.NO_ELIGIBLE_MACHINE).model_dump()],
+    detail=[
+        DetailContent(
+            msg="No eligible machine found for user connection.", err_code=ErrorCodes.NO_ELIGIBLE_MACHINE
+        ).model_dump()
+    ],
     headers={"WWW-Authenticate": "JWT"},
 )

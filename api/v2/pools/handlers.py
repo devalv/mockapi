@@ -90,9 +90,7 @@ async def pool_connect_stage1(user: Annotated[User, Security(get_current_active_
         elif done_task["status"] == TaskStatuses.COMPLETED:
             # задача выполнена успешно - можно делать запрос на подключение (Шаг 2)
             return JSONResponse(
-                TaskResponseModel(
-                    data=TaskShortModel(**done_task)
-                ).model_dump(mode="json"),
+                TaskResponseModel(data=TaskShortModel(**done_task)).model_dump(mode="json"),
                 status_code=status.HTTP_200_OK,
             )
         elif done_task["status"] == TaskStatuses.FAILED:
@@ -119,7 +117,7 @@ async def pool_connect_stage1(user: Annotated[User, Security(get_current_active_
                 "started": None,
                 "finished": None,
                 "id": expand_task_id,
-                "kind": TaskKinds.POOL_EXPAND
+                "kind": TaskKinds.POOL_EXPAND,
             })
         ).model_dump(mode="json"),
         status_code=status.HTTP_202_ACCEPTED,
