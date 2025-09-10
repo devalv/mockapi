@@ -92,7 +92,7 @@ async def start_pool_expand_data_task(user_id: str, task_id: str, pool_id: str) 
     await asyncio.sleep(3)
     fake_tasks_db[user_id][task_id]["status"] = TaskStatuses.RUNNING
     fake_tasks_db[user_id][task_id]["started"] = datetime.now(timezone.utc)
-    await ws_manager.broadcast(fake_tasks_db[user_id][task_id])
+    await ws_manager.send_task_updates(fake_tasks_db[user_id][task_id], client_id=user_id)
     await asyncio.sleep(randint(5, 60))
     fake_tasks_db[user_id][task_id]["status"] = choice((
         TaskStatuses.CANCELLED,
@@ -115,7 +115,7 @@ async def start_pool_expand_data_task(user_id: str, task_id: str, pool_id: str) 
         fake_users_machines_db[user_id].add(f"{new_machine_id}")
 
     fake_tasks_db[user_id][task_id]["finished"] = datetime.now(timezone.utc)
-    await ws_manager.broadcast(fake_tasks_db[user_id][task_id])
+    await ws_manager.send_task_updates(fake_tasks_db[user_id][task_id], client_id=user_id)
     return None
 
 
@@ -173,7 +173,7 @@ async def get_user_start_glint_active_task(user_id: str) -> dict[str, Any] | Non
     return None
 
 
-async def start_glint_data_task(user_id: str, task_id: str, pool_id: str) -> None:
+async def start_glint_data_task(user_id: str, task_id: str) -> None:
     if fake_tasks_db.get(user_id) is None:
         fake_tasks_db[user_id] = dict()
 
@@ -188,7 +188,8 @@ async def start_glint_data_task(user_id: str, task_id: str, pool_id: str) -> Non
     await asyncio.sleep(3)
     fake_tasks_db[user_id][task_id]["status"] = TaskStatuses.RUNNING
     fake_tasks_db[user_id][task_id]["started"] = datetime.now(timezone.utc)
-    await ws_manager.broadcast(fake_tasks_db[user_id][task_id])
+
+    await ws_manager.send_task_updates(fake_tasks_db[user_id][task_id], client_id=user_id)
     await asyncio.sleep(randint(5, 60))
     fake_tasks_db[user_id][task_id]["status"] = choice((
         TaskStatuses.CANCELLED,
@@ -197,5 +198,6 @@ async def start_glint_data_task(user_id: str, task_id: str, pool_id: str) -> Non
     ))
 
     fake_tasks_db[user_id][task_id]["finished"] = datetime.now(timezone.utc)
-    await ws_manager.broadcast(fake_tasks_db[user_id][task_id])
+
+    await ws_manager.send_task_updates(fake_tasks_db[user_id][task_id], client_id=user_id)
     return None

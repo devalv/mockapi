@@ -194,7 +194,7 @@ async def pool_connect_stage2(
         )
 
     start_glint_task_id: str = f"{uuid4()}"
-    connect_task = asyncio.create_task(start_glint_data_task(f"{user.id}", start_glint_task_id, pool_id=f"{id}"))
+    connect_task = asyncio.create_task(start_glint_data_task(f"{user.id}", start_glint_task_id))
     background_tasks.add(connect_task)
     connect_task.add_done_callback(background_tasks.discard)
 
@@ -213,15 +213,15 @@ async def pool_connect_stage2(
     )
 
 
-# TODO: @app.websocket("/ws/{client_id}")?
-# TODO: async def websocket_endpoint(websocket: WebSocket, client_id: int):
-@v2_pools_router.websocket("/ws/")
-async def pools_update_ws(websocket: WebSocket, user: Annotated[User, Security(get_ws_connection_active_user)]) -> None:
-    # TODO: client_id должен храниться в JWTтокене, тогда можно будет персонализировать сообщения конкретному клиенту
-    await ws_manager.connect(websocket)
+@v2_pools_router.websocket("/ws/{client_id}/")
+async def pools_update_ws(
+    websocket: WebSocket, user: Annotated[User, Security(get_ws_connection_active_user)], client_id: str
+) -> None:
+    # TODO: провалидировать client_id сравнив со значением из токена?
+    await ws_manager.connect(websocket, client_id=client_id)
     try:
         while True:
             data = await websocket.receive_text()
-            await ws_manager.send_personal_message(f"User {user.username} sent: {data}", websocket)
+            await ws_manager.send_personal_message(f"User {user.username} sent: {data}", client_id=client_id)
     except WebSocketDisconnect:
-        ws_manager.disconnect(websocket)
+        ws_manager.disconnect(websocket, client_id=client_id)

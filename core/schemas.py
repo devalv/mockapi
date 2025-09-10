@@ -15,6 +15,7 @@ class TokenData(BaseModel):
     username: str
     exp: float
     roles: list[str]
+    client_id: str
     domain: str | None
 
     @classmethod

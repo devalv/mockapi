@@ -40,6 +40,7 @@ async def login_for_access_token(user_input: LoginInputModel) -> TokenResponseMo
         roles=user.roles,
         domain=None,
         exp=(datetime.now(timezone.utc) + timedelta(hours=24)).timestamp(),
+        client_id=f"{user.id}",
     )
     # TODO: дополнительный тип ответа требующий OTP, ADFS, TOKEN
     return TokenResponseModel(data=Token(access_token=_atd.encode(), refresh_token=""))
