@@ -88,7 +88,6 @@ fake_users_pools_db: dict[str, set[str]] = {
 
 fake_users_machines_db: dict[str, set[str]] = {}
 
-
 fake_machines_db: dict[str, dict[str, Any]] = {}
 
 
@@ -127,11 +126,12 @@ fake_tasks_db: dict[str, dict[str, Any]] = {
             "id": "fabb9a84-ae96-4d07-b5a0-329ea70fa476",
         }
     }
+    # TODO: для какого-нибудь пользователя и пула иметь гарантированно проваленную задачу
 }
 
 
 def get_user_task(user_id: str, task_id: str) -> dict[str, Any]:
-    user_task_ids: dict[str, Any] = fake_tasks_db[user_id]
+    user_task_ids: dict[str, Any] | None = fake_tasks_db.get(user_id)
     if user_task_ids:
         return user_task_ids.get(task_id, dict())
     return dict()

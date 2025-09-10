@@ -19,7 +19,7 @@ class TokenData(BaseModel):
 
     @classmethod
     def decode(cls, token: str) -> "TokenData":
-        # TODO: SECRET_KEY точно должен быть частью настроек (https://github.com/devalv/yawm/blob/main/backend/core/schemas/security/oauth2.py)
+        # TODO: SECRET_KEY должен быть частью настроек (https://github.com/devalv/yawm/blob/main/backend/core/schemas/security/oauth2.py)
         decoded_token: dict[str, Any] = jwt.decode(token, "super-secret", algorithms=[ALGORITHMS.HS256])
         return cls(**decoded_token)
 
