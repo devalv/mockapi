@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import UUID4, BaseModel, PastDatetime
 
-from core.enums import TaskStatuses
+from core.enums import TaskKinds, TaskStatuses
 
 
 class TaskShortModel(BaseModel):
@@ -10,6 +10,7 @@ class TaskShortModel(BaseModel):
 
     id: UUID4
     status: TaskStatuses
+    kind: TaskKinds
     created: PastDatetime
     started: datetime | None
     finished: datetime | None

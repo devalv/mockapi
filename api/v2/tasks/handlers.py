@@ -14,7 +14,7 @@ v2_tasks_router = APIRouter(tags=["tasks"], prefix="/tasks")
 
 
 @v2_tasks_router.get(
-    "/{task_id}",
+    "/{task_id}/",
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_403_FORBIDDEN: {"model": ValidationErrorModel},
@@ -29,11 +29,11 @@ async def task(user: Annotated[User, Security(get_current_active_user)], task_id
     user_task: dict[str, Any] = get_user_task(f"{user.id}", f"{task_id}")
     if not user_task:
         raise NOT_FOUND_ERR
-    return TaskShortResponseModel(data=TaskShortModel(id=task_id, **user_task))
+    return TaskShortResponseModel(data=TaskShortModel(**user_task))
 
 
 @v2_tasks_router.get(
-    "/{task_id}/is-done",
+    "/{task_id}/is-done/",
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_403_FORBIDDEN: {"model": ValidationErrorModel},

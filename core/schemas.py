@@ -15,11 +15,12 @@ class TokenData(BaseModel):
     username: str
     exp: float
     roles: list[str]
+    client_id: str
     domain: str | None
 
     @classmethod
     def decode(cls, token: str) -> "TokenData":
-        # TODO: SECRET_KEY точно должен быть частью настроек (https://github.com/devalv/yawm/blob/main/backend/core/schemas/security/oauth2.py)
+        # TODO: SECRET_KEY должен быть частью настроек (https://github.com/devalv/yawm/blob/main/backend/core/schemas/security/oauth2.py)
         decoded_token: dict[str, Any] = jwt.decode(token, "super-secret", algorithms=[ALGORITHMS.HS256])
         return cls(**decoded_token)
 
@@ -50,6 +51,9 @@ class User(BaseModel):
     roles: list[str]
     email: str | None = None
     full_name: str | None = None
+    otp_enabled: bool = False
+    adfs_enabled: bool = False
+    hardware_token_enabled: bool = False
 
 
 class DetailContent(BaseModel):
@@ -81,6 +85,15 @@ class DetailContent(BaseModel):
 
 class ValidationErrorModel(BaseModel):
     detail: list[DetailContent]
+
+
+class AuthMFADetailContent(DetailContent):
+    type: str = "auth"
+    next_step: str
+
+
+class AuthValidationErrorModel(BaseModel):
+    detail: list[AuthMFADetailContent]
 
 
 DEFAULT_RESPONSES: dict[int | str, dict[str, Any]] = {

@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from pydantic import UUID4, BaseModel, Field
+from pydantic import UUID4, BaseModel, Field, field_validator
 from pydantic.networks import IPvAnyAddress
 
 from api.v2.tasks.schemas import TaskShortModel
@@ -21,11 +21,18 @@ class PoolShortResponseModel(BaseModel):
     data: PoolShortModel
 
 
-class PoolGetMachineRequestModel(BaseModel):
-    remote_protocol: ConnectionTypes
+class MachineStartGlintRequestModel(BaseModel):
+    remote_protocol: ConnectionTypesMap
     width: Annotated[int, Field(ge=2)]
     height: Annotated[int, Field(ge=2)]
     password: str | None
+
+    @field_validator("remote_protocol")
+    @classmethod
+    def validate_remote_protocol(cls, v: ConnectionTypesMap) -> ConnectionTypesMap:
+        if v != ConnectionTypesMap.GLINTV1:
+            raise ValueError("remote_protocol must be ConnectionTypesMap.GLINTV1")
+        return v
 
 
 class MachineShortResponseModel(BaseModel):
@@ -35,15 +42,14 @@ class MachineShortResponseModel(BaseModel):
     verbose_name: str
     permissions: list[PermissionTypes]
     host: IPvAnyAddress
-    # vm_controller_address: IPvAnyAddress  # TODO: предположительно не нужно  # noqa ERA001
     port: Annotated[int, Field(ge=1, le=65535)]
     status: EnitityStatuses
     protocol_id: ConnectionTypesMap
 
 
-class PoolGetMachineResponseModel(BaseModel):
+class MachineStartGlintResponseModel(BaseModel):
     data: MachineShortResponseModel
 
 
-class PoolGetMachineActiveTaskResponseModel(BaseModel):
+class TaskResponseModel(BaseModel):
     data: TaskShortModel

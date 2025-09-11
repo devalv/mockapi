@@ -3,7 +3,7 @@ from typing import Any, Dict
 from fastapi import HTTPException, status
 
 from core.enums import ErrorCodes
-from core.schemas import DetailContent
+from core.schemas import AuthMFADetailContent, DetailContent
 
 
 class MockApiHTTPError(HTTPException):
@@ -44,5 +44,55 @@ NO_PERM_ERR: MockApiHTTPError = MockApiHTTPError(
 POOL_EXPAND_FAILED_ERR: MockApiHTTPError = MockApiHTTPError(
     status_code=status.HTTP_403_FORBIDDEN,
     detail=[DetailContent(msg="Pool cannot be expanded.", err_code=ErrorCodes.POOL_EXPAND_FAILED).model_dump()],
+    headers={"WWW-Authenticate": "JWT"},
+)
+
+
+NO_ELIGIBLE_MACHINE_ERR: MockApiHTTPError = MockApiHTTPError(
+    status_code=status.HTTP_409_CONFLICT,
+    detail=[
+        DetailContent(
+            msg="No eligible machine found for user connection.", err_code=ErrorCodes.NO_ELIGIBLE_MACHINE
+        ).model_dump()
+    ],
+    headers={"WWW-Authenticate": "JWT"},
+)
+
+
+MFA_OTP_REQUIRED_ERR: MockApiHTTPError = MockApiHTTPError(
+    status_code=status.HTTP_428_PRECONDITION_REQUIRED,
+    detail=[
+        AuthMFADetailContent(
+            msg="MFA required.", err_code=ErrorCodes.MFA_OTP_REQUIRED, next_step="/api/v2/users/login/"
+        ).model_dump()
+    ],
+    headers={"WWW-Authenticate": "JWT"},
+)
+
+MFA_ADFS_REQUIRED_ERR: MockApiHTTPError = MockApiHTTPError(
+    status_code=status.HTTP_428_PRECONDITION_REQUIRED,
+    detail=[
+        AuthMFADetailContent(
+            msg="MFA required.", err_code=ErrorCodes.MFA_ADFS_REQUIRED, next_step="/api/v2/users/adfs/"
+        ).model_dump()
+    ],
+    headers={"WWW-Authenticate": "JWT"},
+)
+
+MFA_HARDWARE_TOKEN_REQUIRED_ERR: MockApiHTTPError = MockApiHTTPError(
+    status_code=status.HTTP_428_PRECONDITION_REQUIRED,
+    detail=[
+        AuthMFADetailContent(
+            msg="MFA required.",
+            err_code=ErrorCodes.MFA_HARDWARE_TOKEN_REQUIRED,
+            next_step="/api/v2/users/hardware_token/",
+        ).model_dump()
+    ],
+    headers={"WWW-Authenticate": "JWT"},
+)
+
+MFA_OTP_VALIDATION_ERR: MockApiHTTPError = MockApiHTTPError(
+    status_code=status.HTTP_401_UNAUTHORIZED,
+    detail=[DetailContent(msg="Invalid Credentials.", err_code=ErrorCodes.MFA_OTP_MISMATCH).model_dump()],
     headers={"WWW-Authenticate": "JWT"},
 )

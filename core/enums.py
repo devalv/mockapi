@@ -15,7 +15,12 @@ class StrEnumWithValues(StrEnum):
 
 class ErrorCodes(IntEnumWithValues):
     UNKNOWN = 999
+    MFA_OTP_REQUIRED = 100
+    MFA_ADFS_REQUIRED = 101
+    MFA_HARDWARE_TOKEN_REQUIRED = 102
+    MFA_OTP_MISMATCH = 103
     POOL_EXPAND_FAILED = 800
+    NO_ELIGIBLE_MACHINE = 801
     NO_PERM = 900
 
 
@@ -25,6 +30,11 @@ class TaskStatuses(StrEnumWithValues):
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
     CANCELLED = "CANCELLED"
+
+
+class TaskKinds(StrEnumWithValues):
+    POOL_EXPAND = "POOL_EXPAND"
+    GLINT_START = "GLINT_START"
 
 
 class EnitityStatuses(StrEnumWithValues):
