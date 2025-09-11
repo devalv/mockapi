@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
 from pydantic import BaseModel, Field
 
@@ -15,8 +15,9 @@ from core.schemas import Token
 
 class LoginInputModel(BaseModel):
     username: str
-    password: str
+    password: str | None
     ldap: bool
+    otp_code: Optional[str] = None
 
 
 class TokenResponseModel(BaseModel):

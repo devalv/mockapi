@@ -51,6 +51,9 @@ class User(BaseModel):
     roles: list[str]
     email: str | None = None
     full_name: str | None = None
+    otp_enabled: bool = False
+    adfs_enabled: bool = False
+    hardware_token_enabled: bool = False
 
 
 class DetailContent(BaseModel):
@@ -82,6 +85,15 @@ class DetailContent(BaseModel):
 
 class ValidationErrorModel(BaseModel):
     detail: list[DetailContent]
+
+
+class AuthMFADetailContent(DetailContent):
+    type: str = "auth"
+    next_step: str
+
+
+class AuthValidationErrorModel(BaseModel):
+    detail: list[AuthMFADetailContent]
 
 
 DEFAULT_RESPONSES: dict[int | str, dict[str, Any]] = {

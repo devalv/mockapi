@@ -16,12 +16,17 @@ from core.ws import ws_manager
 api_access_key_header = APIKeyHeader(name="Authorization", auto_error=False)
 
 
-def authenticate_user(username: str, password: str) -> User | None:
-    user = get_user(username)
-    if not user or user["disabled"]:
+def authenticate_user_with_password(username: str, password: str | None) -> User | None:
+    if not password:
         return None
 
-    # TODO: проверка пароля
+    return authenticate_user(username=username)
+
+
+def authenticate_user(username: str) -> User | None:
+    user: dict[str, Any] | None = get_user(username)
+    if not user or user["disabled"]:
+        return None
 
     return User(**user)
 
@@ -45,7 +50,7 @@ async def get_current_active_user(token: Annotated[TokenData, Depends(validate_a
     # https://github.com/devalv/yawm/blob/main/backend/core/services/security/auth.py
     # TODO: прочитать содержимое токена и извлечь пользователя из БД
 
-    user: User | None = authenticate_user(token.username, "")
+    user: User | None = authenticate_user(token.username)
     if not user:
         raise FORBIDEN_ERR
     return user
@@ -71,7 +76,7 @@ async def validate_ws_api_access_key(api_key_header: str = Security(get_user_tok
 
 
 async def get_ws_connection_active_user(token: Annotated[TokenData, Depends(validate_ws_api_access_key)]) -> User:
-    user: User | None = authenticate_user(token.username, "")
+    user: User | None = authenticate_user(token.username)
     if not user:
         raise FORBIDEN_ERR
     return user
