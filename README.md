@@ -1,5 +1,8 @@
 # mockapi
 [GitHub](https://github.com/devalv/mockapi)
+[![CodeQL](https://github.com/devalv/mockapi/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/devalv/mockapi/actions/workflows/github-code-scanning/codeql)
+[![Dependabot Updates](https://github.com/devalv/mockapi/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/devalv/mockapi/actions/workflows/dependabot/dependabot-updates)
+[![pre-commit](https://github.com/devalv/mockapi/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/devalv/mockapi/actions/workflows/pre-commit.yml)
 
 ## Установка и запуск
 Для упрощения запуска используются make, поэтому, чтобы воспользоваться готовым набором убедитесь, что в системе установлен make.
