@@ -14,7 +14,7 @@ from core.db import (
     get_user_machines,
     get_user_pools,
 )
-from core.enums import ConnectionTypes, EnitityStatuses, OSTypes, PoolTypes
+from core.enums import ConnectionTypes, ConnectionTypesMap, EnitityStatuses, OSTypes, PoolTypes
 from service.schemas import (
     CreatePoolRequestModel,
     CreatePoolResponseModel,
@@ -53,10 +53,14 @@ async def create_pools(request_model: CreatePoolRequestModel) -> list[CreatePool
             new_machine_id: UUID = uuid4()
             new_machine: dict[str, Any] = {
                 "id": new_machine_id.hex,
-                "name": f"machine-{new_machine_id.hex[:4]}",
+                "verbose_name": f"machine-{new_machine_id.hex[:4]}",
                 "status": EnitityStatuses.ACTIVE,
                 "pool_id": f"{new_pool_id}",
                 "address": "127.0.0.1",
+                "permissions": [],
+                "host": "127.0.0.1",
+                "port": 3398,
+                "protocol_id": ConnectionTypesMap.GLINTV1,
             }
             fake_machines_db[f"{new_machine_id}"] = new_machine
     return created_pools
