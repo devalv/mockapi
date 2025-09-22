@@ -8,7 +8,7 @@ from fastapi import Depends, Header, Security
 from fastapi.security import APIKeyHeader
 
 from core.db import fake_machines_db, fake_tasks_db, fake_users_machines_db, get_user
-from core.enums import EnitityStatuses, TaskKinds, TaskStatuses
+from core.enums import ConnectionTypesMap, EnitityStatuses, TaskKinds, TaskStatuses
 from core.errors import FORBIDEN_ERR, TOKEN_TYPE_ERR
 from core.schemas import TokenData, User
 from core.ws import ws_manager
@@ -109,10 +109,14 @@ async def start_pool_expand_data_task(user_id: str, task_id: str, pool_id: str) 
         new_machine_id: UUID = uuid4()
         new_machine: dict[str, Any] = {
             "id": new_machine_id.hex,
-            "name": f"machine-{new_machine_id.hex[:4]}",
+            "verbose_name": f"machine-{new_machine_id.hex[:4]}",
             "status": EnitityStatuses.ACTIVE,
             "pool_id": pool_id,
             "address": "127.0.0.1",
+            "permissions": [],
+            "host": "127.0.0.1",
+            "port": 3398,
+            "protocol_id": ConnectionTypesMap.GLINTV1,
         }
         fake_machines_db[f"{new_machine_id}"] = new_machine
         if not fake_machines_db.get(user_id):

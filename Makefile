@@ -4,3 +4,11 @@ dev:
 install:
 	curl -sSL https://install.python-poetry.org | python3 -
 	poetry install
+
+coverage:
+	poetry run pytest --cov=api --cov=service --cov-report=term-missing
+
+tests:
+	poetry run pytest -vv
+
+.PHONY: tests

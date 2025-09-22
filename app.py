@@ -10,7 +10,7 @@ from api.v2 import v2_core_router, v2_pools_router, v2_tasks_router, v2_users_ro
 from core.errors import ErrorCodes
 from service.handlers import service_router
 
-mock_app = FastAPI()
+mock_app = FastAPI(version="0.0.7", title="Mock API", description="Dispatcher Mock API for Client 4.0")
 mock_app.include_router(v2_pools_router, prefix="/api/v2", tags=["v2"])
 mock_app.include_router(v2_users_router, prefix="/api/v2", tags=["v2"])
 mock_app.include_router(v2_core_router, prefix="/api/v2", tags=["v2"])

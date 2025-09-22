@@ -73,14 +73,13 @@ async def pools(
 )
 async def pool_connect_stage1(user: Annotated[User, Security(get_current_active_user)], id: UUID4) -> JSONResponse:
     """Запрос на получение машины из пула готовой к старту сессии/подключению."""
-
-    user_has_bool: bool = False
+    user_has_pool: bool = False
     for db_pool in get_user_pools(str(user.id)):
         if db_pool["id"] == id.hex:
-            user_has_bool = True
+            user_has_pool = True
             break
 
-    if not user_has_bool:
+    if not user_has_pool:
         raise NO_PERM_ERR
 
     if done_task := await get_user_pool_expand_done_task(f"{user.id}"):
@@ -146,13 +145,13 @@ async def pool_connect_stage2(
     Тут при подключении пересылаются данные для подключения лаунчером.
     """
 
-    user_has_bool: bool = False
+    user_has_pool: bool = False
     for db_pool in get_user_pools(str(user.id)):
         if db_pool["id"] == id.hex:
-            user_has_bool = True
+            user_has_pool = True
             break
 
-    if not user_has_bool:
+    if not user_has_pool:
         raise NO_PERM_ERR
 
     user_machines: list[dict[str, Any]] = get_user_machines(f"{user.id}")

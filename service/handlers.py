@@ -14,7 +14,7 @@ from core.db import (
     get_user_machines,
     get_user_pools,
 )
-from core.enums import ConnectionTypes, EnitityStatuses, OSTypes, PoolTypes
+from core.enums import ConnectionTypes, ConnectionTypesMap, EnitityStatuses, OSTypes, PoolTypes
 from service.schemas import (
     CreatePoolRequestModel,
     CreatePoolResponseModel,
@@ -25,12 +25,14 @@ from service.schemas import (
 service_router = APIRouter(tags=["service", "mock"], prefix="/service")
 
 
-@service_router.get("/all-pools", status_code=status.HTTP_200_OK, response_model=list[PoolShortModel])
+@service_router.get("/all-pools/", status_code=status.HTTP_200_OK, response_model=list[PoolShortModel])
 async def get_all_pools() -> list[PoolShortModel]:
     return [PoolShortModel(**pool) for pool in fake_pools_db.values()]
 
 
-@service_router.post("/create-pools", status_code=status.HTTP_201_CREATED, response_model=list[CreatePoolResponseModel])
+@service_router.post(
+    "/create-pools/", status_code=status.HTTP_201_CREATED, response_model=list[CreatePoolResponseModel]
+)
 async def create_pools(request_model: CreatePoolRequestModel) -> list[CreatePoolResponseModel]:
     created_pools: list[CreatePoolResponseModel] = []
     for _ in range(request_model.count):
@@ -53,16 +55,20 @@ async def create_pools(request_model: CreatePoolRequestModel) -> list[CreatePool
             new_machine_id: UUID = uuid4()
             new_machine: dict[str, Any] = {
                 "id": new_machine_id.hex,
-                "name": f"machine-{new_machine_id.hex[:4]}",
+                "verbose_name": f"machine-{new_machine_id.hex[:4]}",
                 "status": EnitityStatuses.ACTIVE,
                 "pool_id": f"{new_pool_id}",
                 "address": "127.0.0.1",
+                "permissions": [],
+                "host": "127.0.0.1",
+                "port": 3398,
+                "protocol_id": ConnectionTypesMap.GLINTV1,
             }
             fake_machines_db[f"{new_machine_id}"] = new_machine
     return created_pools
 
 
-@service_router.get("/all-users", status_code=status.HTTP_200_OK, response_model=list[ExtendedUserResponseModel])
+@service_router.get("/all-users/", status_code=status.HTTP_200_OK, response_model=list[ExtendedUserResponseModel])
 async def get_all_users() -> list[ExtendedUserResponseModel]:
     response_data: list[ExtendedUserResponseModel] = list()
     for user in fake_users_db.values():
@@ -75,7 +81,7 @@ async def get_all_users() -> list[ExtendedUserResponseModel]:
     return response_data
 
 
-@service_router.get("/all-tasks", status_code=status.HTTP_200_OK, response_model=list[ExtendedTastShortModel])
+@service_router.get("/all-tasks/", status_code=status.HTTP_200_OK, response_model=list[ExtendedTastShortModel])
 async def get_all_tasks() -> list[ExtendedTastShortModel]:
     response_data: list[ExtendedTastShortModel] = list()
     for user_id, tasks in fake_tasks_db.items():

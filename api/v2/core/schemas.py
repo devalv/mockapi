@@ -16,7 +16,7 @@ class HealthResponseDataModel(BaseModel):
 class HealthResponseModel(BaseModel):
     data: HealthResponseDataModel
 
-    class Config:
+    class ConfigDict:
         json_schema_extra = {
             "example": {
                 "data": {
@@ -45,7 +45,7 @@ class VersionDataModel(BaseModel):
 class VersionResponseModel(BaseModel):
     data: VersionDataModel
 
-    class Config:
+    class ConfigDict:
         json_schema_extra = {
             "example": {
                 "data": {
