@@ -129,6 +129,9 @@ fake_users_pools_db: dict[str, set[str]] = {
         "bc4f9e45-6b5a-41e6-bb85-ae91f4b8c413",
         "2378c527-64eb-48cf-817a-645b645dba54",
     ]),
+    "e8d8dd14-cb09-4099-b96e-a83c6b09496d": set([
+        "bc4f9e45-6b5a-41e6-bb85-ae91f4b8c413",
+    ]),
 }
 
 fake_users_machines_db: dict[str, set[str]] = {}

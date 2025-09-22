@@ -1,0 +1,18 @@
+# Run  tests
+
+name: "tests"
+
+on:
+  pull_request:
+    branches: [ main]
+  push:
+    branches: [ main ]
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Run tests
+        run: |
+          poetry install --with dev
+          poetry run pytest --cov=api --cov=service --cov-report=term-missing

@@ -25,12 +25,14 @@ from service.schemas import (
 service_router = APIRouter(tags=["service", "mock"], prefix="/service")
 
 
-@service_router.get("/all-pools", status_code=status.HTTP_200_OK, response_model=list[PoolShortModel])
+@service_router.get("/all-pools/", status_code=status.HTTP_200_OK, response_model=list[PoolShortModel])
 async def get_all_pools() -> list[PoolShortModel]:
     return [PoolShortModel(**pool) for pool in fake_pools_db.values()]
 
 
-@service_router.post("/create-pools", status_code=status.HTTP_201_CREATED, response_model=list[CreatePoolResponseModel])
+@service_router.post(
+    "/create-pools/", status_code=status.HTTP_201_CREATED, response_model=list[CreatePoolResponseModel]
+)
 async def create_pools(request_model: CreatePoolRequestModel) -> list[CreatePoolResponseModel]:
     created_pools: list[CreatePoolResponseModel] = []
     for _ in range(request_model.count):
@@ -66,7 +68,7 @@ async def create_pools(request_model: CreatePoolRequestModel) -> list[CreatePool
     return created_pools
 
 
-@service_router.get("/all-users", status_code=status.HTTP_200_OK, response_model=list[ExtendedUserResponseModel])
+@service_router.get("/all-users/", status_code=status.HTTP_200_OK, response_model=list[ExtendedUserResponseModel])
 async def get_all_users() -> list[ExtendedUserResponseModel]:
     response_data: list[ExtendedUserResponseModel] = list()
     for user in fake_users_db.values():
@@ -79,7 +81,7 @@ async def get_all_users() -> list[ExtendedUserResponseModel]:
     return response_data
 
 
-@service_router.get("/all-tasks", status_code=status.HTTP_200_OK, response_model=list[ExtendedTastShortModel])
+@service_router.get("/all-tasks/", status_code=status.HTTP_200_OK, response_model=list[ExtendedTastShortModel])
 async def get_all_tasks() -> list[ExtendedTastShortModel]:
     response_data: list[ExtendedTastShortModel] = list()
     for user_id, tasks in fake_tasks_db.items():
